@@ -1,7 +1,9 @@
 package com.example.mesuredeniveaudeglycmie.view;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -17,11 +19,13 @@ import com.example.mesuredeniveaudeglycmie.controller.Controller;
 
 public class MainActivity extends AppCompatActivity {
     private Controller controller;
-    private TextView tv_age, tvReponse;
+    private TextView tv_age;// tvReponse;
     private EditText etValeur;
     private SeekBar sbAge;
     private RadioButton rbIsFasting, rbIsNotFasting;
     private Button btnConsulter;
+    private final String RESPONSE_KEY="result";
+    private final int REQUEST_CODE=1;//le code de consultActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,16 +69,28 @@ public class MainActivity extends AppCompatActivity {
                     //Fleche userAction  view ---> constructor ---->moedl
                     controller.createPatient(age,valeurMesuree,rbIsFasting.isChecked());
                     //Fleche notify  constructor---->view
-                    tvReponse.setText(controller.getResult());
+                    //tvReponse.setText(controller.getResult());
+                    Intent intent=new Intent(MainActivity.this, ConsultActivity.class);
+                    intent.putExtra(RESPONSE_KEY,controller.getResult());
+                    startActivityForResult(intent,REQUEST_CODE);
                     //calculer();
                 }
             }
             });
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==REQUEST_CODE)
+            if(resultCode==RESULT_CANCELED)
+                Toast.makeText(MainActivity.this,"ERROR : RESULT CANCELED",Toast.LENGTH_LONG);
+    }
+
     private void init() {
         controller=Controller.getInstance();
         tv_age = findViewById(R.id.tv_age);
-        tvReponse = findViewById(R.id.tvReponse);
+        //tvReponse = findViewById(R.id.tvReponse);
         etValeur = findViewById(R.id.etValeur);
         sbAge = findViewById(R.id.sbAge);
         rbIsFasting = findViewById(R.id.rbtOui);
